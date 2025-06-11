@@ -1,29 +1,38 @@
 #ifndef PIDCONTROL_H
 #define PIDCONTROL_H
 
-#include <Arduino.h>
-
 class PIDControl {
-public:
-  PIDControl(float kp, float ki, float kd, float dt_ms);
+  public:
+    PIDControl(float kp, float ki, float kd, float dt_ms);
 
-  void setSetpoint(float sp);
+    void computeIIR(float measured);
+    void computeTiempoDiscreto(float measured);
+    void computePasaBaja(float measured);
 
-  void computeIIR(float input);
-  float getOutput() const;
-  float getError() const;
+    float getOutput();
+    float getError();
 
-private:
-  float kp, ki, kd;
-  float dt;
+  private:
+    float kp, ki, kd;
+    float dt;
 
-  float setpoint;
+    // Común a todos
+    float output;
+    float setpoint;
+    float error[3];  // e[t], e[t-1], e[t-2]
 
-  float error;
-  float prevError;
-  float errorSum;
+    // Para computeTiempoDiscreto
+    float integral;
+    float previous_error;
 
-  float output;
+    // Para computePasaBaja
+    float d0, d1;
+    float fd0, fd1;
+    float A0, A1;
+    float A0d, A1d, A2d;
+    float alpha_1, alpha_2;
+
+    bool filtroInicializado;
 };
 
 #endif
